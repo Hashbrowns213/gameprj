@@ -76,9 +76,9 @@ offset_bottom = 523.0
 
 [node name="Start" type="Button" parent="VBoxContainer"]
 layout_mode = 2
-theme_override_colors/icon_hover_color = Color(0.977897, 0.971418, 0.976359, 1)
-theme_override_colors/font_outline_color = Color(0.223266, 0.220947, 0.327554, 1)
 theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0.223266, 0.220947, 0.327554, 1)
+theme_override_colors/icon_hover_color = Color(0.977897, 0.971418, 0.976359, 1)
 theme_override_fonts/font = ExtResource("2_tk8dj")
 theme_override_font_sizes/font_size = 40
 theme_override_styles/normal = SubResource("StyleBoxFlat_d8nwk")
