@@ -1,7 +1,7 @@
 extends Node
 
 var player_stats := {
-	"max health": 3,
+	"max_health": 3,
 	"health": 3,
 	"attack": 1
 }
