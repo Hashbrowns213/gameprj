@@ -1,11 +1,10 @@
-[gd_scene load_steps=14 format=3 uid="uid://baniy03qd8eqd"]
+[gd_scene load_steps=13 format=3 uid="uid://baniy03qd8eqd"]
 
 [ext_resource type="PackedScene" uid="uid://ctf2d4n8p5psm" path="res://Scenes/player.tscn" id="1_ig7tw"]
 [ext_resource type="Texture2D" uid="uid://d3g80sfxi4e1h" path="res://Assets/brackeys_platformer_assets/brackeys_platformer_assets/sprites/platforms.png" id="2_h2yge"]
 [ext_resource type="Texture2D" uid="uid://eo7qgl3nlfaw" path="res://Assets/brackeys_platformer_assets/brackeys_platformer_assets/sprites/world_tileset.png" id="3_1bvp3"]
 [ext_resource type="PackedScene" uid="uid://dve58x3is5w8a" path="res://Scenes/killzone.tscn" id="4_1bvp3"]
 [ext_resource type="PackedScene" uid="uid://bya0osgp4p7xr" path="res://Scenes/Enemy.tscn" id="5_lquwl"]
-[ext_resource type="PackedScene" uid="uid://ddxcppitq1mik" path="res://Scenes/platform.tscn" id="8_5vw27"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lquwl"]
 texture = ExtResource("2_h2yge")
@@ -1406,12 +1405,17 @@ sources/4 = SubResource("TileSetAtlasSource_efxa6")
 position = Vector2(-77, -20)
 
 [node name="Camera2D" type="Camera2D" parent="Player"]
-position = Vector2(0, 3)
+position = Vector2(0, -2)
 zoom = Vector2(3, 3)
-limit_bottom = 120
+limit_left = -9999955
+limit_top = -9999965
+limit_right = 10000045
+limit_bottom = 155
 limit_smoothed = true
 position_smoothing_enabled = true
 rotation_smoothing_enabled = true
+rotation_smoothing_speed = 4.0
+drag_horizontal_offset = 0.29
 
 [node name="TileMap" type="TileMap" parent="."]
 position = Vector2(-8, 1)
@@ -1428,13 +1432,4 @@ position = Vector2(-223, 200)
 shape = SubResource("WorldBoundaryShape2D_lquwl")
 
 [node name="DarkNinja" parent="." instance=ExtResource("5_lquwl")]
-position = Vector2(250, -8)
-
-[node name="AnimatableBody2D" parent="." instance=ExtResource("8_5vw27")]
-position = Vector2(-71, -46)
-
-[node name="AnimatableBody2D2" parent="." instance=ExtResource("8_5vw27")]
-position = Vector2(-27, -66)
-
-[node name="AnimatableBody2D3" parent="." instance=ExtResource("8_5vw27")]
-position = Vector2(24, -90)
+position = Vector2(237, -289)
