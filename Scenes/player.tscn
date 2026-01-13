@@ -1,4 +1,4 @@
-[gd_scene load_steps=73 format=3 uid="uid://ctf2d4n8p5psm"]
+[gd_scene load_steps=74 format=3 uid="uid://ctf2d4n8p5psm"]
 
 [ext_resource type="Script" uid="uid://xbilr0oxnrc0" path="res://Scripts/Trueplayer.gd" id="1_8erm5"]
 [ext_resource type="Texture2D" uid="uid://bk6fxrstug3xy" path="res://Assets/FreeKnight_v1/Colour2/NoOutline/120x80_PNGSheets/_Attack.png" id="2_8erm5"]
@@ -696,9 +696,12 @@ size = Vector2(22, 36)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_pu2lt"]
 size = Vector2(61, 37)
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_gymyn"]
+radius = 23.0
+
 [node name="Player" type="CharacterBody2D" groups=["player"]]
 collision_layer = 3
-collision_mask = 3
+collision_mask = 15
 script = ExtResource("1_8erm5")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
@@ -733,6 +736,12 @@ position = Vector2(-2.86102e-06, 0)
 position = Vector2(21.500002, 1)
 shape = SubResource("RectangleShape2D_pu2lt")
 debug_color = Color(0.22745098, 0.30980393, 0.8627451, 0.52156866)
+
+[node name="Interactabledetector" type="Area2D" parent="."]
+collision_mask = 8
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Interactabledetector"]
+shape = SubResource("CircleShape2D_gymyn")
 
 [connection signal="animation_finished" from="AnimatedSprite2D" to="." method="_on_animated_sprite_2d_animation_finished"]
 [connection signal="animation_finished" from="AnimationPlayer" to="." method="_on_animation_player_animation_finished"]

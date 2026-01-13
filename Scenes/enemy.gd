@@ -1,8 +1,8 @@
 extends CharacterBody2D
 
-@export var SPEED := 100.0
+@export var SPEED := 150.0
 @export var GRAVITY := 600.0
-@export var ATTACK_RANGE := 40.0
+@export var ATTACK_RANGE := 35.0
 @export var TURN_COOLDOWN := 1.0
 @export var PAUSE_BEFORE_TURN := 0.5
 
@@ -10,7 +10,9 @@ extends CharacterBody2D
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var detection_area: Area2D = $DetectionArea
 @onready var wall_check: RayCast2D = $Wall
+@onready var wall_check2: RayCast2D = $Wall2
 @onready var floor_check: RayCast2D = $Floor
+@onready var floor_check2: RayCast2D = $Floor2
 @onready var Hitbox: Area2D = $Hitbox
 @onready var Hurtbox: Area2D = $Hurtbox
 
@@ -89,6 +91,14 @@ func _handle_patrol_behavior() -> void:
 	_play_animation("move")
 
 	if turn_timer <= 0 and (wall_check.is_colliding() or not floor_check.is_colliding()):
+		velocity.x = 0
+		_play_animation("idle")
+		pause_timer = PAUSE_BEFORE_TURN
+		turn_timer = TURN_COOLDOWN
+		direction *= -1
+		pending_turn = true
+
+	if turn_timer <= 0 and (wall_check2.is_colliding() or not floor_check2.is_colliding()):
 		velocity.x = 0
 		_play_animation("idle")
 		pause_timer = PAUSE_BEFORE_TURN

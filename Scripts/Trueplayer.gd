@@ -5,6 +5,8 @@ const JUMP_VELOCITY := -320.0
 const IFRAME_DURATION := 1.0
 const RESPAWN_DELAY := 3.0   # Seconds before scene reload
 
+var current_interactable: Node = null
+
 var is_attacking := false
 var attack_index := 0
 var is_hit := false
@@ -17,6 +19,7 @@ var i_frame_timer := 0.0
 @onready var hitboxbox: CollisionShape2D = $Hitbox/CollisionShape2D
 @onready var Hurtbox: Area2D = $Hurtbox
 @onready var death_timer: Timer = Timer.new()
+@onready var Interaction: Area2D = $Interactabledetector
 
 func _ready() -> void:
 	# Make sure the player is in the "player" group so enemies can detect it
@@ -32,10 +35,25 @@ func _ready() -> void:
 	death_timer.timeout.connect(_reload_scene)
 	add_child(death_timer)
 
-	
+	# Connect interaction area signals
+	if Interaction:
+		Interaction.area_entered.connect(_on_interaction_area_entered)
+		Interaction.area_exited.connect(_on_interaction_area_exited)
+
+	# Reset health
 	Stats.player_stats["health"] = Stats.player_stats["max_health"]
 	print("Player health reset to:", Stats.player_stats["health"])
 
+# --- Interaction detection ---
+func _on_interaction_area_entered(area: Area2D) -> void:
+	if area.is_in_group("interactable"):
+		current_interactable = area
+
+func _on_interaction_area_exited(area: Area2D) -> void:
+	if area == current_interactable:
+		current_interactable = null
+
+# --- Physics/movement ---
 func _physics_process(delta: float) -> void:
 	if is_dead:
 		velocity = Vector2.ZERO
@@ -74,6 +92,10 @@ func _physics_process(delta: float) -> void:
 	_update_hit_and_hurtbox_flip()
 	move_and_slide()
 
+	# Interact
+	if Input.is_action_just_pressed("Interact") and current_interactable:
+		current_interactable.interact()
+
 	# Movement animations
 	if not is_attacking and not is_hit:
 		if not is_on_floor():
@@ -94,6 +116,7 @@ func _process(_delta: float) -> void:
 		elif attack_index == 1:
 			attack_index = 2
 
+# --- Animation finished handler ---
 func _on_animation_finished(anim_name: StringName) -> void:
 	match anim_name:
 		"Attack1":
@@ -108,9 +131,9 @@ func _on_animation_finished(anim_name: StringName) -> void:
 		"Hit":
 			is_hit = false
 		"Death":
-			# Start respawn timer after death animation
 			death_timer.start()
 
+# --- Hit and hurtbox ---
 func _update_hit_and_hurtbox_flip() -> void:
 	if sprite.flip_h:
 		Hitbox.position.x = -38
@@ -121,32 +144,22 @@ func _update_hit_and_hurtbox_flip() -> void:
 
 func _on_hurtbox_area_entered(area: Area2D) -> void:
 	if area.is_in_group("enemy_hitbox") and i_frame_timer <= 0.0 and not is_dead:
-		# Reduce health
 		Stats.player_stats["health"] -= Stats.enemy_stats["attack"]
 		print("Player HP:", Stats.player_stats["health"])
 
-		# Trigger hit state
 		is_hit = true
 		is_attacking = false
 		anim.play("Hit")
 		i_frame_timer = IFRAME_DURATION
 
-		# Player death
 		if Stats.player_stats["health"] <= 0:
 			is_dead = true
 			is_hit = true
-
-			# Disable hitboxes and interactions
 			Hitbox.monitoring = false
 			Hurtbox.monitoring = false
-
-			# Stop enemies from targeting player
 			remove_from_group("player")
-
-			# Play death animation
 			anim.play("Death")
 
 func _reload_scene() -> void:
-	# Reset health before reloading scene
 	Stats.player_stats["health"] = Stats.player_stats["max_health"]
 	get_tree().reload_current_scene()
