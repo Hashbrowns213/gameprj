@@ -6,6 +6,10 @@ extends CharacterBody2D
 @export var TURN_COOLDOWN := 1.0
 @export var PAUSE_BEFORE_TURN := 0.5
 
+# ✅ PER-ENEMY STATS (OPTION 1)
+@export var max_health := 5
+@export var attack := 1
+
 @onready var anim_player: AnimationPlayer = $AnimationPlayer
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var detection_area: Area2D = $DetectionArea
@@ -20,18 +24,23 @@ var player: CharacterBody2D = null
 var direction := -1
 var is_attacking := false
 var is_hit := false
-var is_dead := false   
+var is_dead := false
 var turn_timer := 0.0
 var pause_timer := 0.0
 var pending_turn := false
 
+# ✅ INSTANCE HEALTH
+var health: int
+
 func _ready() -> void:
+	health = max_health  # ✅ each enemy gets its own HP
+
 	detection_area.body_entered.connect(_on_body_entered)
 	detection_area.body_exited.connect(_on_body_exited)
 
 	if not anim_player.animation_finished.is_connected(_on_animation_finished):
 		anim_player.animation_finished.connect(_on_animation_finished)
-	
+
 	if not Hurtbox.area_entered.is_connected(_on_hurtbox_area_entered):
 		Hurtbox.area_entered.connect(_on_hurtbox_area_entered)
 	Hurtbox.monitoring = true
@@ -59,7 +68,6 @@ func _physics_process(delta: float) -> void:
 		move_and_slide()
 		return
 
-	# Stop pursuing player if player is dead (removed from group)
 	if player and player.is_in_group("player"):
 		_handle_player_behavior()
 	else:
@@ -91,20 +99,18 @@ func _handle_patrol_behavior() -> void:
 	_play_animation("move")
 
 	if turn_timer <= 0 and (wall_check.is_colliding() or not floor_check.is_colliding()):
-		velocity.x = 0
-		_play_animation("idle")
-		pause_timer = PAUSE_BEFORE_TURN
-		turn_timer = TURN_COOLDOWN
-		direction *= -1
-		pending_turn = true
+		_pause_and_turn()
 
 	if turn_timer <= 0 and (wall_check2.is_colliding() or not floor_check2.is_colliding()):
-		velocity.x = 0
-		_play_animation("idle")
-		pause_timer = PAUSE_BEFORE_TURN
-		turn_timer = TURN_COOLDOWN
-		direction *= -1
-		pending_turn = true
+		_pause_and_turn()
+
+func _pause_and_turn() -> void:
+	velocity.x = 0
+	_play_animation("idle")
+	pause_timer = PAUSE_BEFORE_TURN
+	turn_timer = TURN_COOLDOWN
+	direction *= -1
+	pending_turn = true
 
 func _flip_all(dir: float) -> void:
 	sprite.flip_h = dir < 0
@@ -136,17 +142,17 @@ func _on_animation_finished(anim_name: StringName) -> void:
 	elif anim_name == "hit":
 		is_hit = false
 	elif anim_name == "death":
-		_die()  # Enemy removed only after death animation finishes
+		_die()
 
 func _on_hurtbox_area_entered(area: Area2D) -> void:
 	if area.is_in_group("player_hitbox") and not is_hit and not is_dead:
-		Stats.enemy_stats["health"] -= Stats.player_stats["attack"]
-		print("Enemy HP:", Stats.enemy_stats["health"])
+		health -= Stats.player_stats["attack"]  # ✅ LOCAL HEALTH
+		print("Enemy HP:", health)
 
 		is_hit = true
 		is_attacking = false
 
-		if Stats.enemy_stats["health"] <= 0:
+		if health <= 0:
 			is_dead = true
 			Hitbox.monitoring = false
 			Hurtbox.monitoring = false
